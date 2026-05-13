@@ -1,0 +1,12 @@
+# Hastane Sistemi - Örnek Randevu Verileri
+# Format: TC,AD,SOYAD,POLİKLİNİK,SAAT
+10000000001,Ahmet,Yilmaz,Kardiyoloji,09:00
+10000000002,Fatma,Kaya,Noroloji,09:30
+10000000003,Mehmet,Demir,Gastroenteroloji,10:00
+10000000004,Ayse,Celik,Genel Cerrahi,10:30
+10000000005,Ali,Sahin,Ortopedi,11:00
+10000000006,Zeynep,Yildiz,Kardiyoloji,11:30
+10000000007,Mustafa,Ozturk,Noroloji,13:00
+10000000008,Elif,Arslan,Gastroenteroloji,13:30
+10000000009,Ibrahim,Dogan,Genel Cerrahi,14:00
+10000000010,Huseyin,Kilic,Ortopedi,14:30

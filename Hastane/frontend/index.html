@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hastane Yönetim Sistemi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     KENAR ÇUBUĞU
+═══════════════════════════════════════ -->
+<aside class="kenar-cubugu">
+  <div class="logo">
+    <div class="logo-ikon-kap">🏥</div>
+    <div>
+      <div class="logo-baslik">MediSYS</div>
+      <div class="logo-alt">Hastane Sistemi</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-bolum-baslik">Ana Menü</div>
+
+    <a class="nav-link aktif" data-bolum="dashboard" onclick="bolumGoster('dashboard')">
+      <span class="nav-ikon">📊</span>
+      Dashboard
+    </a>
+    <a class="nav-link" data-bolum="hastalar" onclick="bolumGoster('hastalar')">
+      <span class="nav-ikon">👤</span>
+      Hasta Yönetimi
+    </a>
+
+    <div class="nav-bolum-baslik">Kuyruklar</div>
+
+    <a class="nav-link" data-bolum="randevular" onclick="bolumGoster('randevular')">
+      <span class="nav-ikon">📅</span>
+      Randevu Kuyruğu
+    </a>
+    <a class="nav-link" data-bolum="triaj" onclick="bolumGoster('triaj')">
+      <span class="nav-ikon">🚨</span>
+      Acil Triaj
+    </a>
+
+    <div class="nav-bolum-baslik">Yönetim</div>
+
+    <a class="nav-link" data-bolum="poliklinikler" onclick="bolumGoster('poliklinikler')">
+      <span class="nav-ikon">🏗️</span>
+      Poliklinikler
+    </a>
+    <a class="nav-link" data-bolum="gecmis" onclick="bolumGoster('gecmis')">
+      <span class="nav-ikon">📋</span>
+      İşlem Geçmişi
+    </a>
+  </nav>
+
+  <div class="kenar-alt">
+    <div class="sistem-durum">
+      <div class="durum-nokta"></div>
+      <div class="durum-yazi">Sistem <strong>Çevrimiçi</strong></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════
+     ANA İÇERİK
+═══════════════════════════════════════ -->
+<main class="ana-icerik">
+
+  <!-- Üst çubuk -->
+  <div class="ust-cubuk">
+    <div class="ust-cubuk-sol">
+      <span class="sayfa-adi" id="sayfa-adi">Dashboard</span>
+    </div>
+    <div class="ust-cubuk-sag">
+      <span class="tarih-zaman" id="tarih-goster"></span>
+    </div>
+  </div>
+
+  <!-- İçerik -->
+  <div class="icerik-kap">
+
+    <!-- ════════ DASHBOARD ════════ -->
+    <section id="bolum-dashboard" class="bolum">
+
+      <!-- İstatistik Kartları -->
+      <div class="kart-grid">
+        <div class="istat-kart teal">
+          <div class="kart-ust">
+            <div class="kart-ikon-kap">👥</div>
+            <span class="kart-degisim degisim-artti" id="hasta-degisim">Toplam</span>
+          </div>
+          <div class="kart-deger" id="toplam-hasta">—</div>
+          <div class="kart-etiket">Kayıtlı Hasta</div>
+        </div>
+        <div class="istat-kart yesil">
+          <div class="kart-ust">
+            <div class="kart-ikon-kap">📅</div>
+            <span class="kart-degisim degisim-sabit">Normal</span>
+          </div>
+          <div class="kart-deger" id="kuyruk-sayi">—</div>
+          <div class="kart-etiket">Bekleyen Randevu</div>
+        </div>
+        <div class="istat-kart kirmizi">
+          <div class="kart-ust">
+            <div class="kart-ikon-kap">🚨</div>
+            <span class="kart-degisim degisim-azaldi" id="triaj-degisim">Acil</span>
+          </div>
+          <div class="kart-deger" id="triaj-sayi">—</div>
+          <div class="kart-etiket">Triajda Bekleyen</div>
+        </div>
+        <div class="istat-kart amber">
+          <div class="kart-ust">
+            <div class="kart-ikon-kap">✅</div>
+            <span class="kart-degisim degisim-artti">Bugün</span>
+          </div>
+          <div class="kart-deger" id="bugun-islem">—</div>
+          <div class="kart-etiket">Gerçekleştirilen İşlem</div>
+        </div>
+      </div>
+
+      <!-- Canlı Kuyruklar -->
+      <div class="cift-sutun">
+        <div class="panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon">📅</div>
+              <div>
+                <div class="panel-baslik-yazi">Normal Randevu Kuyruğu</div>
+                <div class="panel-baslik-alt">FIFO — Linked List Queue</div>
+              </div>
+            </div>
+            <div class="canli-badge">Canlı</div>
+          </div>
+          <table class="tablo">
+            <thead><tr><th>#</th><th>Ad Soyad</th><th>Poliklinik</th><th>Saat</th></tr></thead>
+            <tbody id="dash-kuyruk">
+              <tr><td colspan="4" class="bos-mesaj">📭 Kuyruk boş</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon">🚨</div>
+              <div>
+                <div class="panel-baslik-yazi">Acil Triaj Kuyruğu</div>
+                <div class="panel-baslik-alt">Min-Heap — Öncelikli Kuyruk</div>
+              </div>
+            </div>
+            <div class="canli-badge">Canlı</div>
+          </div>
+          <table class="tablo">
+            <thead><tr><th>Skor</th><th>Ad Soyad</th><th>Durum</th></tr></thead>
+            <tbody id="dash-triaj">
+              <tr><td colspan="3" class="bos-mesaj">📭 Triaj boş</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Veri Yapısı Analiz Paneli ── -->
+      <div class="bolum-baslik-kap">
+        <div class="bolum-ayrac">
+          <span>Veri Yapısı Analitiği</span>
+        </div>
+      </div>
+
+      <!-- Hash Table + Heap + Stack göstergeleri -->
+      <div class="uc-sutun" style="margin-bottom:20px;">
+
+        <!-- Hash Table Gauge -->
+        <div class="panel analiz-panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon" style="background:#ccfbf1;">🔑</div>
+              <div>
+                <div class="panel-baslik-yazi">Hash Table</div>
+                <div class="panel-baslik-alt">Yük Faktörü Analizi</div>
+              </div>
+            </div>
+            <span class="rozet rozet-teal">O(1) Arama</span>
+          </div>
+          <div class="gauge-kap">
+            <svg class="gauge-svg" viewBox="0 0 120 120">
+              <!-- Arka plan çemberi -->
+              <circle cx="60" cy="60" r="44" fill="none" stroke="#e2e8f0" stroke-width="10" stroke-linecap="round"/>
+              <!-- Dolu ark -->
+              <circle id="gauge-ht-ark" cx="60" cy="60" r="44" fill="none"
+                      stroke="url(#tealGrad)" stroke-width="10" stroke-linecap="round"
+                      stroke-dasharray="0 276.5"
+                      transform="rotate(-90 60 60)"
+                      style="transition: stroke-dasharray 1s cubic-bezier(0.4,0,0.2,1);"/>
+              <defs>
+                <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#2DD4BF"/>
+                  <stop offset="100%" style="stop-color:#0D9488"/>
+                </linearGradient>
+              </defs>
+              <!-- Merkez metin -->
+              <text x="60" y="55" text-anchor="middle" class="gauge-pct" id="gauge-ht-pct">0%</text>
+              <text x="60" y="70" text-anchor="middle" class="gauge-alt">Yük Faktörü</text>
+            </svg>
+            <div class="gauge-bilgi">
+              <div class="bilgi-satir"><span>Toplam Bucket</span><strong id="ht-bucket-top">1009</strong></div>
+              <div class="bilgi-satir"><span>Dolu Bucket</span><strong id="ht-bucket-dolu">—</strong></div>
+              <div class="bilgi-satir"><span>Max Zincir</span><strong id="ht-max-zincir">—</strong></div>
+              <div class="bilgi-satir"><span>Toplam Hasta</span><strong id="ht-toplam">—</strong></div>
+            </div>
+          </div>
+          <!-- Bucket Histogram -->
+          <div class="histogram-kap">
+            <div class="histogram-baslik">Bucket Zincir Uzunluk Dağılımı</div>
+            <div id="ht-histogram" class="histogram"></div>
+          </div>
+        </div>
+
+        <!-- Poliklinik Hasta Dağılımı -->
+        <div class="panel analiz-panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon" style="background:#ede9fe;">🏥</div>
+              <div>
+                <div class="panel-baslik-yazi">Poliklinik Dağılımı</div>
+                <div class="panel-baslik-alt">Hash Table → Gruplama</div>
+              </div>
+            </div>
+            <span class="rozet rozet-mor">O(n) Tarama</span>
+          </div>
+          <div class="bar-chart-kap" id="pol-dagilim-chart">
+            <div class="bos-mesaj" style="padding:24px;">Yükleniyor...</div>
+          </div>
+        </div>
+
+        <!-- Triaj Skor Dağılımı -->
+        <div class="panel analiz-panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon" style="background:#fee2e2;">📊</div>
+              <div>
+                <div class="panel-baslik-yazi">Triaj Skor Dağılımı</div>
+                <div class="panel-baslik-alt">Min-Heap → Öncelik Grupları</div>
+              </div>
+            </div>
+            <span class="rozet rozet-kirmizi">Min-Heap</span>
+          </div>
+          <div class="dikey-bar-kap">
+            <div id="triaj-skor-chart" class="dikey-bar-grup"></div>
+            <div class="skor-kategori-etiket">
+              <span class="text-kirmizi">● Kritik (1-3)</span>
+              <span class="text-amber">● Orta (4-6)</span>
+              <span class="text-yesil">● Stabil (7-10)</span>
+            </div>
+          </div>
+          <!-- Veri yapısı durum göstergeleri -->
+          <div class="vd-durum-kap">
+            <div class="vd-satir">
+              <span class="vd-etiket">Heap Doluluk</span>
+              <div class="vd-progress-kap">
+                <div class="vd-progress" id="heap-progress" style="width:0%"></div>
+              </div>
+              <span class="vd-pct" id="heap-pct">0/2000</span>
+            </div>
+            <div class="vd-satir">
+              <span class="vd-etiket">Stack Kayıt</span>
+              <div class="vd-progress-kap" style="background:#ede9fe;">
+                <div class="vd-progress" id="stack-progress" style="width:0%;background:linear-gradient(90deg,#8B5CF6,#7C3AED)"></div>
+              </div>
+              <span class="vd-pct" id="stack-pct">0/500</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════ HASTA YÖNETİMİ ════════ -->
+    <section id="bolum-hastalar" class="bolum gizli">
+
+      <div class="baslik-bar">
+        <h1>Hasta Yönetimi</h1>
+        <button class="buton buton-kucuk" onclick="hastalariYukle()">↺ Yenile</button>
+      </div>
+
+      <div class="cift-sutun">
+        <!-- Yeni Hasta -->
+        <div class="panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon">➕</div>
+              <div>
+                <div class="panel-baslik-yazi">Yeni Hasta Kaydı</div>
+                <div class="panel-baslik-alt">Hash Table'a ekle</div>
+              </div>
+            </div>
+          </div>
+          <form id="hasta-form" class="form-govde" onsubmit="hastaEkle(event)">
+            <div class="form-grup">
+              <label>TC Kimlik No *</label>
+              <input type="text" id="h-tc" maxlength="11" pattern="[0-9]{11}" placeholder="11 haneli TC numarası" required>
+            </div>
+            <div class="form-satir">
+              <div class="form-grup">
+                <label>Ad *</label>
+                <input type="text" id="h-ad" placeholder="Ad" required>
+              </div>
+              <div class="form-grup">
+                <label>Soyad</label>
+                <input type="text" id="h-soyad" placeholder="Soyad">
+              </div>
+            </div>
+            <div class="form-satir">
+              <div class="form-grup">
+                <label>Yaş</label>
+                <input type="number" id="h-yas" min="0" max="150" placeholder="0">
+              </div>
+              <div class="form-grup">
+                <label>Telefon</label>
+                <input type="text" id="h-telefon" placeholder="05xx xxx xx xx">
+              </div>
+            </div>
+            <div class="form-grup">
+              <label>Poliklinik</label>
+              <select id="h-poliklinik">
+                <option value="">— Seçiniz —</option>
+              </select>
+            </div>
+            <button type="submit" class="buton buton-birincil">➕ Hasta Kaydet</button>
+          </form>
+        </div>
+
+        <!-- Arama -->
+        <div>
+          <div class="panel">
+            <div class="panel-baslik">
+              <div class="panel-baslik-sol">
+                <div class="panel-baslik-ikon">🔍</div>
+                <div>
+                  <div class="panel-baslik-yazi">TC ile Hasta Ara</div>
+                  <div class="panel-baslik-alt">O(1) Hash Table araması</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-govde">
+              <div class="form-grup">
+                <label>TC Kimlik Numarası</label>
+                <div class="arama-satir">
+                  <input type="text" id="ara-tc" maxlength="11" placeholder="11 haneli TC girin">
+                  <button class="buton buton-teal" style="background:linear-gradient(135deg,#14B8A6,#0D9488);color:#fff;padding:10px 18px;border-radius:6px;border:none;font-weight:600;cursor:pointer;" onclick="hastaAra()">Ara</button>
+                </div>
+              </div>
+
+              <div id="arama-sonuc" class="gizli">
+                <div class="hasta-kart">
+                  <div class="hasta-kart-baslik">
+                    <div class="hasta-avatar" id="hasta-avatar-harf"></div>
+                    <div>
+                      <div style="font-size:16px;font-weight:700;color:#0F172A;" id="hasta-tam-ad"></div>
+                      <div class="tc-kodu" id="hasta-tc-goster" style="margin-top:4px;display:inline-block;"></div>
+                    </div>
+                  </div>
+                  <div class="hasta-kart-bilgi-sat" id="hasta-bilgi-sat"></div>
+                  <div class="buton-grup" style="margin-top:14px">
+                    <button class="buton buton-gri" onclick="hastaGuncelleForm()">✏️ Güncelle</button>
+                    <button class="buton buton-kirmizi" onclick="hastaSilOnay()">🗑️ Sil</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Güncelle formu -->
+          <div id="guncelle-panel" class="panel gizli mt-4">
+            <div class="panel-baslik">
+              <div class="panel-baslik-sol">
+                <div class="panel-baslik-ikon">✏️</div>
+                <div class="panel-baslik-yazi">Hasta Güncelle</div>
+              </div>
+            </div>
+            <form id="guncelle-form" class="form-govde" onsubmit="hastaGuncelle(event)">
+              <input type="hidden" id="g-tc">
+              <div class="form-satir">
+                <div class="form-grup">
+                  <label>Ad *</label>
+                  <input type="text" id="g-ad" required>
+                </div>
+                <div class="form-grup">
+                  <label>Soyad</label>
+                  <input type="text" id="g-soyad">
+                </div>
+              </div>
+              <div class="form-satir">
+                <div class="form-grup">
+                  <label>Yaş</label>
+                  <input type="number" id="g-yas" min="0" max="150">
+                </div>
+                <div class="form-grup">
+                  <label>Telefon</label>
+                  <input type="text" id="g-telefon">
+                </div>
+              </div>
+              <div class="form-grup">
+                <label>Poliklinik</label>
+                <select id="g-poliklinik"></select>
+              </div>
+              <div class="buton-grup">
+                <button type="submit" class="buton buton-birincil" style="margin-top:0;flex:1">✔ Güncelle</button>
+                <button type="button" class="buton buton-gri" onclick="guncelleIptal()">✕ İptal</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hasta Listesi -->
+      <div class="panel">
+        <div class="panel-baslik">
+          <div class="panel-baslik-sol">
+            <div class="panel-baslik-ikon">📋</div>
+            <div>
+              <div class="panel-baslik-yazi">Tüm Hastalar</div>
+              <div class="panel-baslik-alt">Hash Table'daki tüm kayıtlar</div>
+            </div>
+          </div>
+          <button class="buton buton-kucuk" onclick="hastalariYukle()">↺ Yenile</button>
+        </div>
+        <div class="tablo-sarici">
+          <table class="tablo">
+            <thead>
+              <tr><th>TC</th><th>Ad</th><th>Soyad</th><th>Yaş</th><th>Poliklinik</th><th>Telefon</th><th>İşlemler</th></tr>
+            </thead>
+            <tbody id="hasta-listesi">
+              <tr><td colspan="7" class="bos-mesaj">⏳ Yükleniyor...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ RANDEVU KUYRUĞU ════════ -->
+    <section id="bolum-randevular" class="bolum gizli">
+
+      <div class="baslik-bar">
+        <h1>Randevu Kuyruğu</h1>
+        <button class="buton buton-yesil buton-buyuk" onclick="siradakiCagir()">
+          ▶ Sıradaki Hastayı Çağır
+        </button>
+      </div>
+
+      <div class="cift-sutun">
+        <div class="panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon">➕</div>
+              <div>
+                <div class="panel-baslik-yazi">Randevu Al</div>
+                <div class="panel-baslik-alt">FIFO Queue'ya ekle</div>
+              </div>
+            </div>
+          </div>
+          <form id="randevu-form" class="form-govde" onsubmit="randevuEkle(event)">
+            <div class="form-grup">
+              <label>TC Kimlik No *</label>
+              <input type="text" id="r-tc" maxlength="11" required>
+            </div>
+            <div class="form-satir">
+              <div class="form-grup">
+                <label>Ad *</label>
+                <input type="text" id="r-ad" required>
+              </div>
+              <div class="form-grup">
+                <label>Soyad</label>
+                <input type="text" id="r-soyad">
+              </div>
+            </div>
+            <div class="form-satir">
+              <div class="form-grup">
+                <label>Poliklinik</label>
+                <select id="r-poliklinik"><option value="">— Seçiniz —</option></select>
+              </div>
+              <div class="form-grup">
+                <label>Saat</label>
+                <input type="time" id="r-saat">
+              </div>
+            </div>
+            <button type="submit" class="buton buton-birincil">📅 Kuyruğa Ekle</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon">❌</div>
+              <div>
+                <div class="panel-baslik-yazi">Randevu İptal</div>
+                <div class="panel-baslik-alt">TC ile kuyruktan çıkar</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-govde">
+            <div class="form-grup">
+              <label>TC Kimlik No</label>
+              <div class="arama-satir">
+                <input type="text" id="iptal-tc" maxlength="11" placeholder="TC girin">
+                <button class="buton buton-kirmizi" onclick="randevuIptal()">İptal Et</button>
+              </div>
+            </div>
+            <div style="margin-top:20px;padding:14px;background:#f0fdf4;border-radius:8px;border:1px solid #d1fae5;">
+              <div style="font-size:12px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Veri Yapısı</div>
+              <div style="font-size:12.5px;color:#047857;">
+                <strong>Queue (Linked List)</strong> — FIFO garantisi.<br>
+                Enqueue ve Dequeue işlemleri <strong>O(1)</strong> zaman karmaşıklığı.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-baslik">
+          <div class="panel-baslik-sol">
+            <div class="panel-baslik-ikon">📋</div>
+            <div>
+              <div class="panel-baslik-yazi">Mevcut Kuyruk</div>
+              <div class="panel-baslik-alt">İlk giren ilk çıkar</div>
+            </div>
+          </div>
+          <button class="buton buton-kucuk" onclick="randevuKuyruguYukle()">↺ Yenile</button>
+        </div>
+        <table class="tablo">
+          <thead>
+            <tr><th>#</th><th>TC</th><th>Ad Soyad</th><th>Poliklinik</th><th>Saat</th></tr>
+          </thead>
+          <tbody id="randevu-listesi">
+            <tr><td colspan="5" class="bos-mesaj">📭 Kuyruk boş</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════ ACİL TRİAJ ════════ -->
+    <section id="bolum-triaj" class="bolum gizli">
+
+      <div class="baslik-bar">
+        <h1>Acil Triaj</h1>
+        <button class="buton buton-kirmizi buton-buyuk" onclick="enAcilCagir()">
+          🚨 En Acil Hastayı Çağır
+        </button>
+      </div>
+
+      <div class="cift-sutun">
+        <div class="panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon">➕</div>
+              <div>
+                <div class="panel-baslik-yazi">Triaja Hasta Ekle</div>
+                <div class="panel-baslik-alt">Min-Heap'e ekle</div>
+              </div>
+            </div>
+          </div>
+          <form id="triaj-form" class="form-govde" onsubmit="triajEkle(event)">
+            <div class="form-grup">
+              <label>TC Kimlik No *</label>
+              <input type="text" id="t-tc" maxlength="11" required>
+            </div>
+            <div class="form-satir">
+              <div class="form-grup">
+                <label>Ad *</label>
+                <input type="text" id="t-ad" required>
+              </div>
+              <div class="form-grup">
+                <label>Soyad</label>
+                <input type="text" id="t-soyad">
+              </div>
+            </div>
+
+            <div class="form-grup">
+              <label>Aciliyet Skoru</label>
+              <div style="text-align:center;margin-bottom:10px;">
+                <div class="skor-suat skor-orta" id="skor-suat-el">5</div>
+                <div class="skor-etiket" id="skor-etiket-el">Orta Aciliyet</div>
+              </div>
+              <div class="slider-kap">
+                <input type="range" class="slider" id="t-skor" min="1" max="10" value="5"
+                       oninput="skorGuncelle(this.value)">
+              </div>
+              <div class="skor-gosterge">
+                <span class="text-kirmizi">1-3: Kritik</span>
+                <span class="text-amber">4-6: Orta</span>
+                <span class="text-yesil">7-10: Stabil</span>
+              </div>
+            </div>
+            <button type="submit" class="buton buton-kirmizi w-tam" style="margin-top:8px;padding:12px;">🚨 Triaja Ekle</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon">🎨</div>
+              <div>
+                <div class="panel-baslik-yazi">Aciliyet Renk Kodu</div>
+                <div class="panel-baslik-alt">Triaj protokolü</div>
+              </div>
+            </div>
+          </div>
+          <div class="renk-rehberi">
+            <div class="renk-satir">
+              <div class="renk-kutu" style="background:#fee2e2">🔴</div>
+              <div class="renk-satir-bilgi">
+                <strong>Skor 1–3: KRİTİK</strong>
+                <p>Hayati tehlike — derhal müdahale gerektirir</p>
+              </div>
+            </div>
+            <div class="renk-satir">
+              <div class="renk-kutu" style="background:#fef3c7">🟡</div>
+              <div class="renk-satir-bilgi">
+                <strong>Skor 4–6: ORTA</strong>
+                <p>Acil durum — kısa sürede müdahale gerektirir</p>
+              </div>
+            </div>
+            <div class="renk-satir">
+              <div class="renk-kutu" style="background:#d1fae5">🟢</div>
+              <div class="renk-satir-bilgi">
+                <strong>Skor 7–10: STABİL</strong>
+                <p>Stabil durum — sıra bekleyebilir</p>
+              </div>
+            </div>
+            <div style="padding:12px;background:#f0fdf4;border-radius:8px;border:1px solid #d1fae5;">
+              <div style="font-size:12px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Veri Yapısı: Min-Heap</div>
+              <div style="font-size:12.5px;color:#047857;">
+                Ekleme ve çıkarma <strong>O(log n)</strong>.<br>
+                Kök her zaman en düşük skor = en kritik hasta.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-baslik">
+          <div class="panel-baslik-sol">
+            <div class="panel-baslik-ikon">📋</div>
+            <div>
+              <div class="panel-baslik-yazi">Triaj Listesi</div>
+              <div class="panel-baslik-alt">En acilden en az acile sıralı</div>
+            </div>
+          </div>
+          <button class="buton buton-kucuk" onclick="triajListesiYukle()">↺ Yenile</button>
+        </div>
+        <table class="tablo">
+          <thead>
+            <tr><th>Skor</th><th>TC</th><th>Ad Soyad</th><th>Durum</th></tr>
+          </thead>
+          <tbody id="triaj-listesi">
+            <tr><td colspan="4" class="bos-mesaj">📭 Triaj boş</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════ POLİKLİNİKLER ════════ -->
+    <section id="bolum-poliklinikler" class="bolum gizli">
+
+      <div class="baslik-bar">
+        <h1>Poliklinik Hiyerarşisi</h1>
+        <button class="buton buton-kucuk" onclick="agaciYukle()">↺ Yenile</button>
+      </div>
+
+      <!-- SVG Ağaç Görselleştirmesi -->
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="panel-baslik">
+          <div class="panel-baslik-sol">
+            <div class="panel-baslik-ikon" style="background:#ccfbf1;">🌳</div>
+            <div>
+              <div class="panel-baslik-yazi">N-ary Tree — Görsel Hiyerarşi</div>
+              <div class="panel-baslik-alt">
+                Her düğüm = poliklinik birimi &nbsp;·&nbsp;
+                Kenar = üst-alt birim ilişkisi &nbsp;·&nbsp;
+                Renk = seviye derinliği
+              </div>
+            </div>
+          </div>
+          <!-- Seviye lejandı -->
+          <div class="agac-lejant">
+            <div class="lejant-madde">
+              <span class="lejant-renk" style="background:#0F172A;"></span>Hastane
+            </div>
+            <div class="lejant-madde">
+              <span class="lejant-renk" style="background:#0D9488;"></span>Ana Birim
+            </div>
+            <div class="lejant-madde">
+              <span class="lejant-renk" style="background:#F0FDFA;border:2px solid #14B8A6;"></span>Poliklinik
+            </div>
+          </div>
+        </div>
+        <!-- SVG canvas — dinamik olarak doldurulur -->
+        <div class="agac-svg-kap">
+          <svg id="agac-svg" xmlns="http://www.w3.org/2000/svg"
+               style="display:block; overflow:visible;">
+            <text x="50%" y="60" text-anchor="middle"
+                  fill="#94A3B8" font-size="13" font-family="Inter,sans-serif">⏳ Yükleniyor...</text>
+          </svg>
+        </div>
+        <!-- Ağaç istatistikleri -->
+        <div class="agac-istat-sart">
+          <div class="agac-istat-kutu">
+            <div class="agac-istat-sayi" id="agac-dugum-sayi">—</div>
+            <div class="agac-istat-etiket">Toplam Düğüm</div>
+          </div>
+          <div class="agac-istat-kutu">
+            <div class="agac-istat-sayi" id="agac-kenar-sayi">—</div>
+            <div class="agac-istat-etiket">Toplam Kenar</div>
+          </div>
+          <div class="agac-istat-kutu">
+            <div class="agac-istat-sayi" id="agac-derinlik">—</div>
+            <div class="agac-istat-etiket">Ağaç Derinliği</div>
+          </div>
+          <div class="agac-istat-kutu">
+            <div class="agac-istat-sayi" id="agac-yaprak">—</div>
+            <div class="agac-istat-etiket">Yaprak Düğüm</div>
+          </div>
+          <div class="agac-istat-kutu teal">
+            <div class="agac-istat-sayi">O(n)</div>
+            <div class="agac-istat-etiket">DFS Tarama</div>
+          </div>
+          <div class="agac-istat-kutu teal">
+            <div class="agac-istat-sayi">O(1)</div>
+            <div class="agac-istat-etiket">Ebeveyn Erişim</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Klasik ağaç + formlar -->
+      <div class="cift-sutun">
+        <div class="panel">
+          <div class="panel-baslik">
+            <div class="panel-baslik-sol">
+              <div class="panel-baslik-ikon">📂</div>
+              <div>
+                <div class="panel-baslik-yazi">Açılır/Kapanır Ağaç</div>
+                <div class="panel-baslik-alt">DFS ile yapı gezintisi</div>
+              </div>
+            </div>
+          </div>
+          <div class="agac-sarici" id="agac-gorunum">
+            <div class="bos-mesaj">⏳ Yükleniyor...</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel">
+            <div class="panel-baslik">
+              <div class="panel-baslik-sol">
+                <div class="panel-baslik-ikon">➕</div>
+                <div class="panel-baslik-yazi">Poliklinik Ekle</div>
+              </div>
+            </div>
+            <form id="poliklinik-form" class="form-govde" onsubmit="poliklinikEkle(event)">
+              <div class="form-grup">
+                <label>Üst Birim *</label>
+                <input type="text" id="p-ebeveyn" placeholder="Örn: Dahiliye" required>
+              </div>
+              <div class="form-grup">
+                <label>Yeni Birim Adı *</label>
+                <input type="text" id="p-ad" placeholder="Örn: Romatoloji" required>
+              </div>
+              <button type="submit" class="buton buton-birincil">➕ Poliklinik Ekle</button>
+            </form>
+          </div>
+
+          <div class="panel mt-4">
+            <div class="panel-baslik">
+              <div class="panel-baslik-sol">
+                <div class="panel-baslik-ikon">🗑️</div>
+                <div class="panel-baslik-yazi">Poliklinik Sil</div>
+              </div>
+            </div>
+            <div class="form-govde">
+              <div class="form-grup">
+                <label>Birim Adı</label>
+                <div class="arama-satir">
+                  <input type="text" id="p-sil-ad" placeholder="Silinecek birim adı">
+                  <button class="buton buton-kirmizi" onclick="poliklinikSil()">Sil</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ İŞLEM GEÇMİŞİ ════════ -->
+    <section id="bolum-gecmis" class="bolum gizli">
+
+      <div class="baslik-bar">
+        <h1>İşlem Geçmişi</h1>
+        <div style="display:flex;gap:10px;">
+          <button class="buton buton-kucuk" onclick="gecmisYukle()">↺ Yenile</button>
+          <button class="buton buton-turuncu buton-buyuk" onclick="geriAl()">
+            ↩ Son İşlemi Geri Al
+          </button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #d1fae5;">
+        <div style="padding:16px 20px;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:24px;">📚</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#065f46;">Stack Veri Yapısı (LIFO)</div>
+            <div style="font-size:12.5px;color:#047857;margin-top:2px;">
+              Her işlem push ile stack'e eklenir. "Geri Al" butonu son işlemi pop eder ve geri alır. Push/Pop işlemleri <strong>O(1)</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-baslik">
+          <div class="panel-baslik-sol">
+            <div class="panel-baslik-ikon">📋</div>
+            <div>
+              <div class="panel-baslik-yazi">Son 50 İşlem</div>
+              <div class="panel-baslik-alt">En yeni işlem üstte</div>
+            </div>
+          </div>
+        </div>
+        <div class="tablo-sarici">
+          <table class="tablo">
+            <thead>
+              <tr><th>Zaman</th><th>İşlem Tipi</th><th>TC</th><th>Açıklama</th></tr>
+            </thead>
+            <tbody id="gecmis-listesi">
+              <tr><td colspan="4" class="bos-mesaj">📭 Geçmiş boş</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /icerik-kap -->
+</main>
+
+<!-- Toast bildirimleri -->
+<div id="bildirim-kap"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
