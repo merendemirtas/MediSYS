@@ -297,5 +297,8 @@ CFLAGS = -Wall -Wextra -O2 -pthread -std=c99
 
 ---
 
-*BMT210 Veri Yapıları — Muhammet Eren Demirtaş - Onur Olmuş - Hayri Topaloğlu* 
+*BMT210 Veri Yapıları — Muhammet Eren Demirtaş* 
+
+<img width="1701" height="986" alt="Ekran Resmi 2026-05-13 12 37 55" src="https://github.com/user-attachments/assets/033c7108-524a-464c-a077-cf7b8be4fbbc" />
+
 
